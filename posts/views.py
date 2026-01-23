@@ -12,16 +12,24 @@ from django.urls import reverse_lazy
 
 # Create your views here.
 class PostDraftListView(ListView):
+    """
+    PostDraftListView is going to help us to display all posts from the db with a Draft status
+    """
     template_name = "posts/draft.html"
-    context_object_name = "post"
+    context_object_name = "drafts"
     draft_status = Status.objects.get(name="Draft")
     queryset = Post.objects.filter(status=draft_status).order_by("created_on").reverse()
 
+
 class PostArchivedListView(ListView):
+    """
+    PostArchivedListView is going to help us to display all posts from the db with a Archived status
+    """
     template_name = "posts/archived.html"
-    context_object_name = "post"
+    context_object_name = "archived"
     archived_status = Status.objects.get(name="Archived")
     queryset = Post.objects.filter(status=archived_status).order_by("created_on").reverse()
+
 
 class PostListView(ListView): 
     """

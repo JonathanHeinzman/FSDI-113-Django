@@ -6,7 +6,7 @@ from .views import (
     PostUpdateView,
     PostDeleteView,
     PostDraftListView,
-    PostArchivedListView,
+    PostArchivedListView
 )
 
 urlpatterns = [
