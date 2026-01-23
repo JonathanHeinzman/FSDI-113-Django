@@ -4,13 +4,25 @@ from django.views.generic import (
     DetailView,
     CreateView,
     UpdateView,
-    DeleteView
+    DeleteView,
 )
 from .models import Post, Status
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 
 # Create your views here.
+class PostDraftListView(ListView):
+    template_name = "posts/draft.html"
+    context_object_name = "post"
+    draft_status = Status.objects.get(name="Draft")
+    queryset = Post.objects.filter(status=draft_status).order_by("created_on").reverse()
+
+class PostArchivedListView(ListView):
+    template_name = "posts/archived.html"
+    context_object_name = "post"
+    archived_status = Status.objects.get(name="Archived")
+    queryset = Post.objects.filter(status=archived_status).order_by("created_on").reverse()
+
 class PostListView(ListView): 
     """
     PostListView is going to retrieve all of the objects from the Post table in the database
@@ -19,7 +31,7 @@ class PostListView(ListView):
     #model = Post
     context_object_name = "post"
     published_status = Status.objects.get(name="Published")
-    #Queryset attribute allow us to select some dara from the db using the model class
+    #Queryset attribute allow us to select some data from the db using the model class
     queryset = Post.objects.filter(status=published_status).order_by("created_on").reverse()
 
 
