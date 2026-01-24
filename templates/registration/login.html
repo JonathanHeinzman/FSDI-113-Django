@@ -7,10 +7,14 @@
 
 {% block content %}
     <div class="container">
+        <h1>Log In</h1>
         <form method="post">
             {% csrf_token %}
             {{ form|crispy }}
             <input type="submit" value="Log In" class="btn btn-success">
         </form>
+    </div>
+    <div class="container mt-3">
+        <p>If you forgot your password, <a href="{% url 'password_reset' %}">click here</a> to change it</p>
     </div>
 {% endblock %}

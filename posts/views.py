@@ -9,6 +9,10 @@ from django.views.generic import (
 from .models import Post, Status
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    UserPassesTestMixin
+)
 
 # Create your views here.
 class PostDraftListView(ListView):
@@ -43,7 +47,7 @@ class PostListView(ListView):
     queryset = Post.objects.filter(status=published_status).order_by("created_on").reverse()
 
 
-class PostDetailView(DetailView): 
+class PostDetailView(LoginRequiredMixin, DetailView): 
     """
     PostDetailView is going to retrieve a single element from the Post table in the db.
     """
@@ -52,28 +56,37 @@ class PostDetailView(DetailView):
     context_object_name = "single_post"
 
 
-class PostCreateView(CreateView): # POST
+class PostCreateView(LoginRequiredMixin, CreateView): # POST
     """
     PostCreateView is going to allow us to create a new post and add it to the db
     """
     template_name = "posts/new.html"
     model = Post
-    fields = ["title", "subtitle", "body"]
+    fields = ["title", "subtitle", "body", "status"]
 
     def form_valid(self, form):
-        print(User.objects.all())
-        form.instance.author = User.objects.last() 
+        form.instance.author = self.request.user
         return super().form_valid(form)
     
-class PostUpdateView(UpdateView):
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """
     PostUpdateView allows us to update an existing record from the db
     """
     template_name = "posts/edit.html"
     model = Post
-    fields = ["title", "subtitle","body"]
+    fields = ["title", "subtitle","body", "status"]
+    
+    def test_func(self):
+        post = self.get_object()
+        if self.request.user.is_authenticated:
+            if self.request.user == post.author:
+                return True
+            else:
+                return False
+        else:
+            return False
 
-class PostDeleteView(DeleteView):
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """
     PostDeleteView allows us to delete an existing record from the db
     """
@@ -81,3 +94,13 @@ class PostDeleteView(DeleteView):
     template_name = "posts/delete.html"
     model = Post
     success_url = reverse_lazy("post_list")
+
+    def test_func(self):
+        post = self.get_object()
+        if self.request.user.is_authenticated:
+            if self.request.user == post.author:
+                return True
+            else:
+                return False
+        else:
+            return False
